@@ -1,0 +1,8 @@
+{
+  "name": "leweycoin",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "zeppelin-solidity": "1.6.0"
+  }
+}
