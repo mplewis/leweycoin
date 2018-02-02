@@ -1,0 +1,11 @@
+env:
+  node: true
+  mocha: true
+
+globals:
+  contract: false
+  expect: false
+  artifacts: false
+
+extends:
+  - standard

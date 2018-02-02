@@ -37,10 +37,6 @@ contract LeweyCoin is Ownable {
     return balance[recipient];
   }
 
-  function myBalance() public view returns (uint) {
-    return balanceOf(msg.sender);
-  }
-
   // Public functions
 
   function withdraw(uint amount) public {
