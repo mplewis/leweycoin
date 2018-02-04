@@ -33,7 +33,7 @@ contract LeweyCoin is Ownable {
     return this.balance;
   }
 
-  function balanceOf(address recipient) public view returns (uint) {
+  function balanceFor(address recipient) public view returns (uint) {
     return balance[recipient];
   }
 

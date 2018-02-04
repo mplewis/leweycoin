@@ -19,8 +19,8 @@ contract('LeweyCoin', function (accounts) {
 
   it('is created with the proper initial state', async function () {
     expect(await LC.owner()).to.eql(creator)
-    expect(await getNum('balanceOf', creator)).to.eql(0)
-    expect(await getNum('balanceOf', user)).to.eql(0)
+    expect(await getNum('balanceFor', creator)).to.eql(0)
+    expect(await getNum('balanceFor', user)).to.eql(0)
     expect(balanceOf(LC.address)).to.eql(0)
     expect(await getNum('contractBalance')).to.eql(0)
   })
@@ -46,8 +46,8 @@ contract('LeweyCoin', function (accounts) {
     beforeEach(async () => fund(0.1 * ETH))
 
     it('does not change user balances', async function () {
-      expect(await getNum('balanceOf', creator)).to.eql(0)
-      expect(await getNum('balanceOf', user)).to.eql(0)
+      expect(await getNum('balanceFor', creator)).to.eql(0)
+      expect(await getNum('balanceFor', user)).to.eql(0)
     })
   })
 
@@ -82,6 +82,28 @@ contract('LeweyCoin', function (accounts) {
 
           expect(await getNum('contractBalance')).to.eql(0.025 * ETH)
         })
+      })
+    })
+  })
+
+  describe('.mint', function () {
+    let sender
+    const subject = () => LC.mint(user, 0.1 * ETH, { from: sender })
+
+    context('by non-owner', function () {
+      beforeEach(() => (sender = user))
+
+      it('fails', async function () {
+        expect(await subject()).to.fail()
+      })
+    })
+
+    context('by creator', function () {
+      beforeEach(() => (sender = creator))
+
+      it('succeeds and updates user balance', async function () {
+        expect(await subject()).to.succeed()
+        expect(await getNum('balanceFor', user)).to.eql(0.1 * ETH)
       })
     })
   })
