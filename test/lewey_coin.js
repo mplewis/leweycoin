@@ -33,7 +33,7 @@ contract('LeweyCoin', function (accounts) {
     })
 
     context('after funding', function () {
-      beforeEach(async () => fund(0.1 * ETH))
+      beforeEach(() => fund(0.1 * ETH))
 
       it('returns the expected balance', async function () {
         expect(await subject()).to.eql(0.1 * ETH)
@@ -43,7 +43,7 @@ contract('LeweyCoin', function (accounts) {
   })
 
   describe('funding the contract', function () {
-    beforeEach(async () => fund(0.1 * ETH))
+    beforeEach(() => fund(0.1 * ETH))
 
     it('does not change user balances', async function () {
       expect(await getNum('balanceFor', creator)).to.eql(0)
@@ -71,7 +71,7 @@ contract('LeweyCoin', function (accounts) {
       })
 
       context('after funding', function () {
-        beforeEach(async () => fund(0.1 * ETH))
+        beforeEach(() => fund(0.1 * ETH))
 
         it('withdraws funds successfully', async function () {
           const previousBalance = balanceOf(creator)
@@ -80,7 +80,7 @@ contract('LeweyCoin', function (accounts) {
           const expectedBalance = previousBalance + 0.075 * ETH
           expect(balanceOf(creator)).to.be.closeTo(expectedBalance, TYPICAL_FEE)
 
-          expect(await getNum('contractBalance')).to.eql(0.025 * ETH)
+          expect(balanceOf(LC.address)).to.eql(0.025 * ETH)
         })
       })
     })
@@ -104,6 +104,41 @@ contract('LeweyCoin', function (accounts) {
       it('succeeds and updates user balance', async function () {
         expect(await subject()).to.succeed()
         expect(await getNum('balanceFor', user)).to.eql(0.1 * ETH)
+      })
+    })
+  })
+
+  describe('.withdraw', function () {
+    const subject = () => LC.withdraw({ from: user })
+
+    it('sends no ether when user balance is empty', async function () {
+      const originalBalance = balanceOf(user)
+      expect(await subject()).to.succeed()
+      expect(balanceOf(user)).to.be.closeTo(originalBalance, TYPICAL_FEE)
+    })
+
+    context('after minting for user', function () {
+      beforeEach(() => LC.mint(user, 0.1 * ETH))
+
+      it('fails when contract is underfunded', async function () {
+        const originalBalance = balanceOf(user)
+        expect(await subject()).to.fail()
+        expect(balanceOf(user)).to.be.closeTo(originalBalance, TYPICAL_FEE)
+      })
+
+      context('after funding contract', function () {
+        beforeEach(() => fund(0.12 * ETH))
+
+        it('succeeds, sends ether to user, and clears user balance', async function () {
+          const originalBalance = balanceOf(user)
+          expect(await subject()).to.succeed()
+
+          const expectedBalance = originalBalance + 0.1 * ETH
+          expect(balanceOf(user)).to.be.closeTo(expectedBalance, TYPICAL_FEE)
+          expect(balanceOf(LC.address)).to.eql(0.02 * ETH)
+
+          expect(await getNum('balanceFor', user)).to.eql(0)
+        })
       })
     })
   })

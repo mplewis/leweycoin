@@ -15,7 +15,7 @@ contract LeweyCoin is Ownable {
   }
 
   function ownerWithdraw(uint amount) public onlyOwner {
-    require (this.balance > amount);
+    require(this.balance > amount);
     owner.transfer(amount);
   }
 
@@ -42,7 +42,7 @@ contract LeweyCoin is Ownable {
   function withdraw() public {
     address recipient = msg.sender;
     uint amount = balance[recipient];
-    require (this.balance > amount);
+    require(this.balance >= amount);
 
     balance[recipient] = balance[recipient].sub(amount);
     recipient.transfer(amount);
