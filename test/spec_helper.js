@@ -1,4 +1,5 @@
 const ETH = 1000000000000000000
+const TYPICAL_FEE = 0.004 * ETH
 
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
@@ -29,4 +30,4 @@ chai.use(solidityHelpers)
 
 const balanceOf = address => web3.eth.getBalance(address).toNumber()
 
-module.exports = { ETH, expect, balanceOf }
+module.exports = { ETH, TYPICAL_FEE, expect, balanceOf }

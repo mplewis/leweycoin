@@ -1,4 +1,4 @@
-const { ETH, expect, balanceOf } = require('./spec_helper')
+const { ETH, TYPICAL_FEE, expect, balanceOf } = require('./spec_helper')
 
 const LeweyCoin = artifacts.require('LeweyCoin')
 
@@ -53,13 +53,13 @@ contract('LeweyCoin', function (accounts) {
 
   describe('.ownerWithdraw', function () {
     let sender
-    const subject = amount => LC.ownerWithdraw(amount, { from: sender })
+    const subject = () => LC.ownerWithdraw(0.075 * ETH, { from: sender })
 
     context('by non-owner', function () {
       beforeEach(() => (sender = user))
 
       it('fails', async function () {
-        expect(await subject(0.05 * ETH)).to.fail()
+        expect(await subject()).to.fail()
       })
     })
 
@@ -67,14 +67,19 @@ contract('LeweyCoin', function (accounts) {
       beforeEach(() => (sender = creator))
 
       it('fails without funds', async function () {
-        expect(await subject(0.05 * ETH)).to.fail()
+        expect(await subject()).to.fail()
       })
 
       context('after funding', function () {
         beforeEach(async () => fund(0.1 * ETH))
 
-        it('succeeds, withdraws funds, and updates contract balance', async function () {
-          expect(await subject(0.075 * ETH)).to.succeed()
+        it('withdraws funds successfully', async function () {
+          const previousBalance = balanceOf(creator)
+          expect(await subject()).to.succeed()
+
+          const expectedBalance = previousBalance + 0.075 * ETH
+          expect(balanceOf(creator)).to.be.closeTo(expectedBalance, TYPICAL_FEE)
+
           expect(await getNum('contractBalance')).to.eql(0.025 * ETH)
         })
       })
