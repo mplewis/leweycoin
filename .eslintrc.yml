@@ -6,6 +6,7 @@ globals:
   contract: false
   expect: false
   artifacts: false
+  web3: false
 
 extends:
   - standard

@@ -27,4 +27,6 @@ const solidityHelpers = (chai, utils) => {
 }
 chai.use(solidityHelpers)
 
-module.exports = { ETH, expect }
+const balanceOf = address => web3.eth.getBalance(address).toNumber()
+
+module.exports = { ETH, expect, balanceOf }

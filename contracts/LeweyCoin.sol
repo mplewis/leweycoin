@@ -39,11 +39,10 @@ contract LeweyCoin is Ownable {
 
   // Public functions
 
-  function withdraw(uint amount) public {
-    require (this.balance > amount);
-
+  function withdraw() public {
     address recipient = msg.sender;
-    require (balance[recipient] >= amount);
+    uint amount = balance[recipient];
+    require (this.balance > amount);
 
     balance[recipient] = balance[recipient].sub(amount);
     recipient.transfer(amount);
