@@ -10,21 +10,28 @@ const { expect } = chai
 const solidityHelpers = (chai, utils) => {
   const SUCCESS = '0x01'
   const FAILURE = '0x00'
-  const statusIs = code =>
+  const statusIs = (code, desc = null) =>
     function () {
       const obj = utils.flag(this, 'object')
       const status = obj.receipt.status
-      return new chai.Assertion(status).to.be.equal(
-        code,
+      const msg = [
+        desc,
         `Expected transaction status ${status} to equal ${code}`
-      )
+      ]
+        .filter(Boolean)
+        .join('; ')
+      return new chai.Assertion(status).to.be.equal(code, msg)
     }
   utils.addChainableMethod(
     chai.Assertion.prototype,
     'succeed',
-    statusIs(SUCCESS)
+    statusIs(SUCCESS, 'Expected transaction to succeed')
   )
-  utils.addChainableMethod(chai.Assertion.prototype, 'fail', statusIs(FAILURE))
+  utils.addChainableMethod(
+    chai.Assertion.prototype,
+    'fail',
+    statusIs(FAILURE, 'Expected transaction to fail')
+  )
 }
 chai.use(solidityHelpers)
 
