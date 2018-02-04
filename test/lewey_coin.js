@@ -86,7 +86,7 @@ contract('LeweyCoin', function (accounts) {
     })
   })
 
-  describe('.mint', function () {
+  describe('.mint and .balanceFor', function () {
     let sender
     const subject = () => LC.mint(user, 0.1 * ETH, { from: sender })
 
@@ -95,6 +95,7 @@ contract('LeweyCoin', function (accounts) {
 
       it('fails', async function () {
         expect(await subject()).to.fail()
+        expect(await getNum('balanceFor', user)).to.eql(0)
       })
     })
 
