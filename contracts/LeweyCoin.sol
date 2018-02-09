@@ -3,10 +3,16 @@ pragma solidity ^0.4.18;
 import '../node_modules/zeppelin-solidity/contracts/math/SafeMath.sol';
 import '../node_modules/zeppelin-solidity/contracts/ownership/Ownable.sol';
 
+contract Medianizer {
+  function compute() public constant returns (bytes32, bool);
+}
+
 contract LeweyCoin is Ownable {
   using SafeMath for uint;
 
   mapping (address => uint) balance;
+
+  uint weiPerEth = 1000000000000000000;
 
   // Owner-only
 
