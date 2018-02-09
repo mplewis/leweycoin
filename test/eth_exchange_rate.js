@@ -21,7 +21,7 @@ contract('EthExchangeRate', function (accounts) {
     })
   })
 
-  describe.only('usdToWei', function () {
+  describe('usdToWei', function () {
     const subject = async usd => getNum('usdToWei', usd)
 
     context('with a fixed exchange rate of 1 ETH = $250', function () {

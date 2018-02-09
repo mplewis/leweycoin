@@ -2,12 +2,9 @@ pragma solidity ^0.4.18;
 
 import '../node_modules/zeppelin-solidity/contracts/math/SafeMath.sol';
 import '../node_modules/zeppelin-solidity/contracts/ownership/Ownable.sol';
+import './EthExchangeRate.sol';
 
-contract Medianizer {
-  function compute() public constant returns (bytes32, bool);
-}
-
-contract LeweyCoin is Ownable {
+contract LeweyCoin is Ownable, EthExchangeRate {
   using SafeMath for uint;
 
   mapping (address => uint) balance;
@@ -47,10 +44,11 @@ contract LeweyCoin is Ownable {
 
   function withdraw() public {
     address recipient = msg.sender;
-    uint amount = balance[recipient];
-    require(this.balance >= amount);
+    uint leweyCoins = balance[recipient];
+    uint weiToPayout = usdToWei(leweyCoins);
+    require(this.balance >= weiToPayout);
 
-    balance[recipient] = balance[recipient].sub(amount);
-    recipient.transfer(amount);
+    balance[recipient] = 0;
+    recipient.transfer(weiToPayout);
   }
 }

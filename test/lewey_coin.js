@@ -1,6 +1,6 @@
 const { ETH, TYPICAL_FEE, expect, balanceOf } = require('./spec_helper')
 
-const LeweyCoin = artifacts.require('LeweyCoin')
+const LeweyCoin = artifacts.require('LeweyCoinMock')
 
 contract('LeweyCoin', function (accounts) {
   const [creator, user, donor] = accounts
@@ -112,33 +112,38 @@ contract('LeweyCoin', function (accounts) {
   describe('.withdraw', function () {
     const subject = () => LC.withdraw({ from: user })
 
-    it('sends no ether when user balance is empty', async function () {
-      const originalBalance = balanceOf(user)
-      expect(await subject()).to.succeed()
-      expect(balanceOf(user)).to.be.closeTo(originalBalance, TYPICAL_FEE)
-    })
+    context('with a fixed ETH exchange rate of 1 ETH = $2500', function () {
+      const USD = 1 / 2500 * ETH
+      beforeEach(() => LC.setNewExchangeRate(2500 * ETH))
 
-    context('after minting for user', function () {
-      beforeEach(() => LC.mint(user, 0.1 * ETH))
-
-      it('fails when contract is underfunded', async function () {
+      it('sends no ether when user balance is empty', async function () {
         const originalBalance = balanceOf(user)
-        expect(await subject()).to.fail()
+        expect(await subject()).to.succeed()
         expect(balanceOf(user)).to.be.closeTo(originalBalance, TYPICAL_FEE)
       })
 
-      context('after funding contract', function () {
-        beforeEach(() => fund(0.12 * ETH))
+      context('after minting 10 LeweyCoins for user', function () {
+        beforeEach(() => LC.mint(user, 10))
 
-        it('succeeds, sends ether to user, and clears user balance', async function () {
+        it('fails when contract is underfunded', async function () {
           const originalBalance = balanceOf(user)
-          expect(await subject()).to.succeed()
+          expect(await subject()).to.fail()
+          expect(balanceOf(user)).to.be.closeTo(originalBalance, TYPICAL_FEE)
+        })
 
-          const expectedBalance = originalBalance + 0.1 * ETH
-          expect(balanceOf(user)).to.be.closeTo(expectedBalance, TYPICAL_FEE)
-          expect(balanceOf(LC.address)).to.eql(0.02 * ETH)
+        context('after funding contract', function () {
+          beforeEach(() => fund(100 * USD))
 
-          expect(await getNum('balanceFor', user)).to.eql(0)
+          it('succeeds, sends $10 in ether to user, and clears user balance', async function () {
+            const originalBalance = balanceOf(user)
+            expect(await subject()).to.succeed()
+
+            const expectedBalance = originalBalance + 10 * USD
+            expect(balanceOf(user)).to.be.closeTo(expectedBalance, TYPICAL_FEE)
+            expect(balanceOf(LC.address)).to.eql(90 * USD)
+
+            expect(await getNum('balanceFor', user)).to.eql(0)
+          })
         })
       })
     })
