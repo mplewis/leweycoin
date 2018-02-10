@@ -32,10 +32,6 @@ contract LeweyCoin is Ownable, EthExchangeRate {
 
   // Views
 
-  function contractBalance() public view returns (uint) {
-    return this.balance;
-  }
-
   function balanceFor(address recipient) public view returns (uint) {
     return balance[recipient];
   }
@@ -45,7 +41,11 @@ contract LeweyCoin is Ownable, EthExchangeRate {
   function withdraw() public {
     address recipient = msg.sender;
     uint leweyCoins = balance[recipient];
-    uint weiToPayout = usdToWei(leweyCoins);
+
+    uint weiToPayout;
+    bool success;
+    (weiToPayout, success) = usdToWei(leweyCoins);
+    require(success);
     require(this.balance >= weiToPayout);
 
     balance[recipient] = 0;

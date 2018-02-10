@@ -24,8 +24,12 @@ contract EthExchangeRate {
     return uint(rawOracleValue);
   }
 
-  function usdToWei(uint usd) public view returns (uint) {
+  function usdToWei(uint usd) public view returns (uint, bool) {
     uint ethPriceInUsdTimesWei = ethPriceFromMakerDaoOracle();
-    return usd.mul(weiPerEth).mul(weiPerEth).div(ethPriceInUsdTimesWei);
+    if (ethPriceInUsdTimesWei == 0)
+      return (0, false);
+
+    uint result = usd.mul(weiPerEth).mul(weiPerEth).div(ethPriceInUsdTimesWei);
+    return (result, true);
   }
 }

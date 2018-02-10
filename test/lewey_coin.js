@@ -22,24 +22,6 @@ contract('LeweyCoin', function (accounts) {
     expect(await getNum('balanceFor', creator)).to.eql(0)
     expect(await getNum('balanceFor', user)).to.eql(0)
     expect(balanceOf(LC.address)).to.eql(0)
-    expect(await getNum('contractBalance')).to.eql(0)
-  })
-
-  describe('.contractBalance', function () {
-    const subject = () => getNum('contractBalance')
-
-    it('returns the expected balance', async function () {
-      expect(await subject()).to.eql(0)
-    })
-
-    context('after funding', function () {
-      beforeEach(() => fund(0.1 * ETH))
-
-      it('returns the expected balance', async function () {
-        expect(await subject()).to.eql(0.1 * ETH)
-        expect(balanceOf(LC.address)).to.eql(0.1 * ETH)
-      })
-    })
   })
 
   describe('funding the contract', function () {

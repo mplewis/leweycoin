@@ -12,6 +12,12 @@ contract('EthExchangeRate', function (accounts) {
     return bigNumber.toNumber()
   }
 
+  async function getSuccessNum (method, ...args) {
+    const [bigNumber, success] = await EER[method](...args)
+    expect(success).to.be.true
+    return bigNumber.toNumber()
+  }
+
   context('with a fixed exchange rate of 1 ETH = $1000', function () {
     beforeEach(() => EER.setNewExchangeRate(1000 * ETH))
 
@@ -22,7 +28,7 @@ contract('EthExchangeRate', function (accounts) {
   })
 
   describe('usdToWei', function () {
-    const subject = async usd => getNum('usdToWei', usd)
+    const subject = async usd => getSuccessNum('usdToWei', usd)
 
     context('with a fixed exchange rate of 1 ETH = $250', function () {
       beforeEach(() => EER.setNewExchangeRate(250 * ETH))
@@ -41,6 +47,17 @@ contract('EthExchangeRate', function (accounts) {
         expect(await subject(1)).to.eql(0.001 * ETH)
         expect(await subject(2000)).to.eql(2 * ETH)
         expect(await subject(7500)).to.eql(7.5 * ETH)
+      })
+    })
+
+    context('when the oracle fails', function () {
+      const subject = () => EER.usdToWei(42)
+      beforeEach(() => EER.setNewExchangeRate(0))
+
+      it('returns failure', async function () {
+        const [result, success] = await subject()
+        expect(result.toNumber()).to.eql(0)
+        expect(success).to.be.false
       })
     })
   })
